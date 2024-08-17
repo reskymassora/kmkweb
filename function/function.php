@@ -311,43 +311,34 @@ function tambahPamfletMasuk($asal, $arsip)
 function tambahLaporan($tanggal, $keterangan, $debit, $kredit, $ref)
 {
     global $conn;
-
     // Menentukan lokasi penyimpanan file
     $target_dir = "referensi/";
     $target_file = $target_dir . basename($ref["name"]);
-    $uploadOk = 1;
     $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-
     // Memeriksa apakah file adalah gambar
     $check = getimagesize($ref["tmp_name"]);
     if ($check === false) {
         return ['status' => false, 'message' => 'File bukan gambar.'];
     }
-
     // Memeriksa apakah file sudah ada
     if (file_exists($target_file)) {
         return ['status' => false, 'message' => 'File sudah ada.'];
     }
-
     // Memeriksa ukuran file
     if ($ref["size"] > 500000) { // Batasan 500KB
         return ['status' => false, 'message' => 'Ukuran file terlalu besar.'];
     }
-
     // Memeriksa jenis file
     $allowed_file_types = ['jpg', 'jpeg', 'png', 'gif'];
     if (!in_array($imageFileType, $allowed_file_types)) {
         return ['status' => false, 'message' => 'Hanya file JPG, JPEG, PNG & GIF yang diizinkan.'];
     }
-
     // Jika semuanya baik, lanjutkan dengan mengupload file
     if (!move_uploaded_file($ref["tmp_name"], $target_file)) {
         return ['status' => false, 'message' => 'Terjadi kesalahan saat mengupload file.'];
     }
-
     // Menghitung saldo berdasarkan debit dan kredit
     $saldo = 0;
-
     // Ambil saldo terakhir
     $query_saldo = "SELECT saldo FROM laporan_keuangan ORDER BY id DESC LIMIT 1";
     $result_saldo = mysqli_query($conn, $query_saldo);
@@ -355,20 +346,20 @@ function tambahLaporan($tanggal, $keterangan, $debit, $kredit, $ref)
         $row = mysqli_fetch_assoc($result_saldo);
         $saldo = (int)$row['saldo'];
     }
-
     // Update saldo berdasarkan debit dan kredit
     $debit = !empty($debit) ? (int)$debit : 0;
     $kredit = !empty($kredit) ? (int)$kredit : 0;
-
     $saldo = $saldo + $debit - $kredit;
-
     // Insert data ke dalam tabel
     $query = "INSERT INTO laporan_keuangan (tanggal, keterangan, debit, kredit, saldo, ref) 
               VALUES ('$tanggal', '$keterangan', $debit, $kredit, $saldo, '$target_file')";
-
     if (mysqli_query($conn, $query)) {
         return ['status' => true, 'message' => 'Transaksi berhasil ditambahkan.'];
     } else {
+        // Hapus file jika insert gagal
+        if (file_exists($target_file)) {
+            unlink($target_file);
+        }
         return ['status' => false, 'message' => 'Gagal menambahkan transaksi: ' . mysqli_error($conn)];
     }
 }
