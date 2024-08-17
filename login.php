@@ -1,7 +1,3 @@
-<?php
-	require 'function/function.php';
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -31,51 +27,73 @@
 <body class="app app-login p-0">
 
 <?php
-    if (isset($_POST['submit'])) {
-        $loginNIM = $_POST['nim'];
-        $loginJABATAN = $_POST['jabatan'];
-        $loginPASSWORD = $_POST['password'];
+session_start();
+require 'function/function.php';
 
-        $query = "SELECT * FROM pengurus WHERE 
-                            nim = '$loginNIM' AND
-                            password = '$loginPASSWORD' AND
-                            jabatan = '$loginJABATAN'";
+if (isset($_POST['submit'])) {
+    $loginNIM = $_POST['nim'];
+    $loginJABATAN = $_POST['jabatan'];
+    $loginPASSWORD = $_POST['password'];
 
-        $result = mysqli_query($conn, $query);
-
-        if (mysqli_num_rows($result) > 0) {
-            echo "<script>
-                    Swal.fire({
-                        title: 'Login Berhasil!',
-                        text: 'Klik OK untuk melanjutkan ke dashboard.',
-                        icon: 'success',
-                        confirmButtonText: 'OK'
-                    }).then(function() {
-                        window.location.href = '";
-            if ($loginJABATAN == 'Ketua Umum') {
-                echo "ketum/dashboard_ketua_umum.php";
-            } else if ($loginJABATAN == 'Bendahara Umum') {
-                echo "bendahara/dashboard_bendahara_umum.php";
-            } else if ($loginJABATAN == 'Sekretaris Umum') {
-                echo "sekretaris/dashboard_sekretaris_umum.php";
-            } else {
-                echo "dashboard_lain.php"; // Ganti sesuai kebutuhan
-            }
-            echo "';
-                    });
-                </script>";
-        } else {
-            echo "<script>
-                    Swal.fire({
-                        title: 'Login Gagal!',
-                        text: 'NIM, Password, atau Jabatan salah.',
-                        icon: 'error',
-                        confirmButtonText: 'Coba Lagi'
-                    });
-                </script>";
-        }
+    // Periksa apakah NIM, Jabatan, dan Password diisi
+    if (empty($loginNIM) || empty($loginJABATAN) || empty($loginPASSWORD)) {
+        echo "<script>
+                Swal.fire({
+                    title: 'Login Gagal!',
+                    text: 'Semua field harus diisi.',
+                    icon: 'error',
+                    confirmButtonText: 'Coba Lagi'
+                }).then(function() {
+                    window.location.href = 'login.php';
+                });
+            </script>";
+        exit;
     }
-    ?>
+
+    $query = "SELECT * FROM pengurus WHERE 
+                        nim = '$loginNIM' AND
+                        password = '$loginPASSWORD' AND
+                        jabatan = '$loginJABATAN'";
+
+    $result = mysqli_query($conn, $query);
+
+    if (mysqli_num_rows($result) > 0) {
+        $_SESSION['nim'] = $loginNIM;
+        $_SESSION['jabatan'] = $loginJABATAN;
+
+        echo "<script>
+                Swal.fire({
+                    title: 'Login Berhasil!',
+                    text: 'Klik OK untuk melanjutkan ke dashboard.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then(function() {
+                    window.location.href = '";
+        if ($loginJABATAN == 'Ketua Umum') {
+            echo "ketum/dashboard_ketua_umum.php";
+        } else if ($loginJABATAN == 'Bendahara Umum') {
+            echo "bendahara/dashboard_bendahara_umum.php";
+        } else if ($loginJABATAN == 'Sekretaris Umum') {
+            echo "sekretaris/dashboard_sekretaris_umum.php";
+        } else {
+            echo "dashboard_lain.php"; // Ganti sesuai kebutuhan
+        }
+        echo "';
+                });
+            </script>";
+    } else {
+        echo "<script>
+                Swal.fire({
+                    title: 'Login Gagal!',
+                    text: 'NIM, Password, atau Jabatan salah.',
+                    icon: 'error',
+                    confirmButtonText: 'Coba Lagi'
+                });
+            </script>";
+    }
+}
+?>
+
 
 
 

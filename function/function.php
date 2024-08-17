@@ -5,6 +5,11 @@ $username = "u832397905_kmkdipa";
 $password = "KMKundipamks.25";
 $dbname = "u832397905_kmkdipa";
 
+// $servername = "localhost";
+// $username = "root";
+// $password = "";
+// $dbname = "sisfo_kmk_undipa";
+
 // Membuat koneksi
 $conn = new mysqli($servername, $username, $password, $dbname);
 
