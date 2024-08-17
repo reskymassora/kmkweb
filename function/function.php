@@ -1,8 +1,8 @@
 <?php
 // Detail koneksi database
 $servername = "localhost";
-$username = "root";
-$password = "";
+$username = "u832397905_kmkdipa";
+$password = "KMKundipamks.25";
 $dbname = "sisfo_kmk_undipa";
 
 // Membuat koneksi
