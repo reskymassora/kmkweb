@@ -3,7 +3,7 @@
 $servername = "localhost";
 $username = "u832397905_kmkdipa";
 $password = "KMKundipamks.25";
-$dbname = "sisfo_kmk_undipa";
+$dbname = "u832397905_kmkdipa";
 
 // Membuat koneksi
 $conn = new mysqli($servername, $username, $password, $dbname);
