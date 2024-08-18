@@ -308,12 +308,16 @@ function tambahPamfletMasuk($asal, $arsip)
 }
 
 // Buat Laporan Keuangan
+// Buat Laporan Keuangan
 function tambahLaporan($tanggal, $keterangan, $debit, $kredit, $ref)
 {
     global $conn;
     // Menentukan lokasi penyimpanan file
     $target_dir = "referensi/";
-    $target_file = $target_dir . basename($ref["name"]);
+
+    // Ubah nama file sebelum disimpan
+    $new_file_name = uniqid() . '.' . strtolower(pathinfo($ref["name"], PATHINFO_EXTENSION));
+    $target_file = $target_dir . $new_file_name;
     $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
     // Memeriksa apakah file adalah gambar
     $check = getimagesize($ref["tmp_name"]);
@@ -353,6 +357,7 @@ function tambahLaporan($tanggal, $keterangan, $debit, $kredit, $ref)
     // Insert data ke dalam tabel
     $query = "INSERT INTO laporan_keuangan (tanggal, keterangan, debit, kredit, saldo, ref) 
               VALUES ('$tanggal', '$keterangan', $debit, $kredit, $saldo, '$target_file')";
+
     if (mysqli_query($conn, $query)) {
         return ['status' => true, 'message' => 'Transaksi berhasil ditambahkan.'];
     } else {
@@ -363,5 +368,6 @@ function tambahLaporan($tanggal, $keterangan, $debit, $kredit, $ref)
         return ['status' => false, 'message' => 'Gagal menambahkan transaksi: ' . mysqli_error($conn)];
     }
 }
+
 
 
