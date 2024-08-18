@@ -79,7 +79,7 @@ $daftarLaporan = tampil_data("SELECT * FROM laporan_keuangan");
                     </a>
                   </td>
                 </tr>
-                <?php $i = 1; ?>
+                <?php $i++; ?>
                 <?php endforeach; ?>
               </tbody>
             </table>
