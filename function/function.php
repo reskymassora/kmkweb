@@ -1,14 +1,14 @@
 <?php
 // Detail koneksi database
-$servername = "localhost";
-$username = "u832397905_kmkdipa";
-$password = "KMKundipamks.25";
-$dbname = "u832397905_kmkdipa";
-
 // $servername = "localhost";
-// $username = "root";
-// $password = "";
-// $dbname = "sisfo_kmk_undipa";
+// $username = "u832397905_kmkdipa";
+// $password = "KMKundipamks.25";
+// $dbname = "u832397905_kmkdipa";
+
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "sisfo_kmk_undipa";
 
 // Membuat koneksi
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -307,7 +307,9 @@ function tambahPamfletMasuk($asal, $arsip)
     }
 }
 
-// Buat Laporan Keuangan
+
+
+// SOURCE CODE FUNCTION UNTUK BENDAHARA
 // Buat Laporan Keuangan
 function tambahLaporan($tanggal, $keterangan, $debit, $kredit, $ref)
 {
@@ -368,6 +370,87 @@ function tambahLaporan($tanggal, $keterangan, $debit, $kredit, $ref)
         return ['status' => false, 'message' => 'Gagal menambahkan transaksi: ' . mysqli_error($conn)];
     }
 }
+
+// Edit Laporan Keuangan
+function editLaporan($conn, $id) {
+    // Ambil data dari form
+    $tanggal = $_POST['tanggal'];
+    $keterangan = $_POST['keterangan'];
+    $debit = isset($_POST['debit']) && $_POST['debit'] !== '' ? $_POST['debit'] : 0;
+    $kredit = isset($_POST['kredit']) && $_POST['kredit'] !== '' ? $_POST['kredit'] : 0;
+
+    // Cek apakah file baru diunggah
+    if ($_FILES['ref']['error'] === UPLOAD_ERR_OK) {
+        // Proses file baru
+        $ref = $_FILES['ref']['name'];
+        $target_dir = "referensi/";
+        $target_file = $target_dir . basename($ref);
+        move_uploaded_file($_FILES['ref']['tmp_name'], $target_file);
+
+        // Hapus file lama jika ada
+        $old_ref_query = "SELECT ref FROM laporan_keuangan WHERE id = $id";
+        $result = mysqli_query($conn, $old_ref_query);
+        $old_ref = mysqli_fetch_assoc($result)['ref'];
+
+        if ($old_ref && file_exists($target_dir . $old_ref)) {
+            unlink($target_dir . $old_ref);
+        }
+
+        // Query untuk mengupdate data dengan file baru
+        $query = "UPDATE laporan_keuangan SET tanggal = '$tanggal', keterangan = '$keterangan', ref = '$ref', debit = '$debit', kredit = '$kredit' WHERE id = $id";
+    } else {
+        // Query untuk mengupdate data tanpa mengubah file
+        $query = "UPDATE laporan_keuangan SET tanggal = '$tanggal', keterangan = '$keterangan', debit = '$debit', kredit = '$kredit' WHERE id = $id";
+    }
+
+    // Eksekusi query
+    if (mysqli_query($conn, $query)) {
+        // Update saldo setelah data diubah
+        updateSaldo($conn);
+
+        // Tampilkan SweetAlert setelah berhasil
+        echo "<script>
+            Swal.fire({
+                title: 'Berhasil!',
+                text: 'Data berhasil diubah.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = 'dashboard_bendahara_umum.php';
+                }
+            });
+        </script>";
+    } else {
+        // Tampilkan SweetAlert jika gagal
+        echo "<script>
+            Swal.fire({
+                title: 'Gagal!',
+                text: 'Gagal mengubah data.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        </script>";
+    }
+}
+
+function updateSaldo($conn) {
+    // Ambil semua transaksi dan urutkan berdasarkan ID
+    $query = "SELECT id, debit, kredit FROM laporan_keuangan ORDER BY id ASC";
+    $result = $conn->query($query);
+
+    $previous_saldo = 0;
+    while ($row = $result->fetch_assoc()) {
+        $new_saldo = $previous_saldo + $row['debit'] - $row['kredit'];
+        $conn->query("UPDATE laporan_keuangan SET saldo = $new_saldo WHERE id = " . $row['id']);
+        $previous_saldo = $new_saldo;
+    }
+}
+
+
+
+
+
 
 
 

@@ -1,9 +1,10 @@
 <?php
-  require('../function/function.php');
+require('../function/function.php');
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <title>Dashboard Bendahara Umum</title>
   <!-- Meta -->
@@ -17,59 +18,62 @@
   <script defer src="../assets/plugins/fontawesome/js/all.min.js"></script>
   <!-- App CSS -->
   <link id="theme-style" rel="stylesheet" href="../assets/css/portal.css">
-  	<!-- Sweatalert -->
-	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Sweatalert -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
+
 <body class="app">
   <!-- Logic -->
   <?php
-  // Memeriksa apakah form telah disubmit
-  if (isset($_POST['tambah_transaksi'])) {
-      // Mengambil data dari form
-      $tanggal = $_POST['tanggal'];
-      $keterangan = $_POST['keterangan'];
-      $debit = isset($_POST['debit']) ? $_POST['debit'] : '';
-      $kredit = isset($_POST['kredit']) ? $_POST['kredit'] : '';
-      $ref = $_FILES['ref'];
 
-      // Memanggil fungsi untuk menambahkan data ke database
-      $result = tambahLaporan($tanggal, $keterangan, $debit, $kredit, $ref);
+  // Cek apakah tombol 'edit_transaksi' ditekan
+  if (isset($_POST['edit_transaksi'])) {
+    // Ambil ID dari URL atau parameter lainnya
+    $id = $_GET['id'];
 
-      // Menggunakan SweetAlert untuk memberikan umpan balik kepada pengguna
-      if ($result['status']) {
-          echo "<script>
-              Swal.fire({
-                  title: 'Berhasil!',
-                  text: '{$result['message']}',
-                  icon: 'success',
-                  confirmButtonText: 'OK'
-              }).then((result) => {
-                  if (result.isConfirmed) {
-                      window.location.href = 'dashboard_bendahara_umum.php'; // Ubah sesuai dengan halaman yang diinginkan
-                  }
-              });
-          </script>";
-      } else {
-          echo "<script>
-              Swal.fire({
-                  title: 'Gagal!',
-                  text: '{$result['message']}',
-                  icon: 'error',
-                  confirmButtonText: 'OK'
-              }).then((result) => {
-                  if (result.isConfirmed) {
-                      window.location.href = 'tambah_transaksi.php'; // Ubah sesuai dengan halaman input
-                  }
-              });
-          </script>";
-      }
+    // Panggil fungsi editLaporan
+    editLaporan($conn, $id);
   }
+
+  // Edit Laporan Keuangan
+  $id = isset($_GET['id']) ? intval($_GET['id']) : 0; // Mengamankan id dan memastikan id adalah integer
+
+  if ($id > 0) {
+    $query = "SELECT * FROM laporan_keuangan WHERE id = ?";
+
+    if ($stmt = $conn->prepare($query)) {
+      $stmt->bind_param("i", $id);
+      $stmt->execute();
+      $result = $stmt->get_result();
+
+      // Mengambil data
+      if ($data = $result->fetch_assoc()) {
+        $tanggal = $data['tanggal'];
+        $keterangan = $data['keterangan'];
+        $ref = $data['ref']; // Nama file yang sudah diupload
+        $debit = $data['debit'];
+        $kredit = $data['kredit'];
+      } else {
+        echo "Data tidak ditemukan";
+        exit;
+      }
+
+      $stmt->close();
+    } else {
+      echo "Query gagal";
+      exit;
+    }
+  } else {
+    echo "ID tidak valid";
+    exit;
+  }
+  $conn->close();
   ?>
 
 
   <!-- Sidebar -->
   <?php
-    require 'navigation/header.php';
+  require 'navigation/header.php';
   ?>
   <div class="app-wrapper">
     <div class="app-content pt-3 p-md-3 p-lg-4">
@@ -84,7 +88,7 @@
                     <label>Tanggal</label>
                   </td>
                   <td>
-                    <input type="date" class="form-control" name="tanggal" step="0.01" min="0" />
+                    <input type="date" class="form-control" name="tanggal" step="0.01" min="0" value="<?php echo $tanggal; ?>" />
                   </td>
                 </tr>
                 <tr>
@@ -92,7 +96,7 @@
                     <label>Keterangan</label>
                   </td>
                   <td>
-                    <input type="text" class="form-control" name="keterangan" require />
+                    <input type="text" class="form-control" name="keterangan" require value="<?php echo $keterangan; ?>" />
                   </td>
                 </tr>
                 <tr>
@@ -100,7 +104,8 @@
                     <label>Ref (Bukti)</label>
                   </td>
                   <td>
-                    <input type="file" class="form-control" name="ref" require />
+                    <img id="refPreview" class="p-2" src="<?php echo $ref; ?>" alt="Current Image" width="100px">
+                    <input type="file" class="form-control" name="ref" id="refInput" onchange="previewImage(event)" />
                   </td>
                 </tr>
                 <tr>
@@ -108,7 +113,7 @@
                     <label>Debit</label>
                   </td>
                   <td>
-                    <input type="number" class="form-control" name="debit" id="debit"  />
+                    <input type="number" class="form-control" id="debit" name="debit" id="debit" value="<?php echo $debit; ?>" required />
                   </td>
                 </tr>
                 <tr>
@@ -116,7 +121,7 @@
                     <label>Kredit</label>
                   </td>
                   <td>
-                    <input type="number" class="form-control" name="kredit" id="kredit"  />
+                    <input type="number" class="form-control" id="kredit" name="kredit" id="kredit" value="<?php echo $kredit; ?>" required />
                   </td>
                 </tr>
                 <!-- Tambah Jarak -->
@@ -129,7 +134,7 @@
 
                 <tr>
                   <td>
-                    <button name="tambah_transaksi" type="submit" class="btn app-btn-primary w-100 theme-btn mx-auto">Input Data</button>
+                    <button name="edit_transaksi" type="submit" class="btn app-btn-primary w-100 theme-btn mx-auto">Edit Data</button>
                   </td>
                 </tr>
               </form>
@@ -152,8 +157,6 @@
 
     <!-- script transaksi baru -->
     <script src="js/bendahara.js"></script>
-
-
 </body>
 
 </html>
