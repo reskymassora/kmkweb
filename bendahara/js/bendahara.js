@@ -69,6 +69,55 @@ function confirmDelete(id) {
     });
 }
 
+// Script konfirmasi penghapusan untuk daftar_utang
+function confirmDeleteDaftarUtang(id) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Mengirim request AJAX ke delete_daftar_utang.php
+            fetch('delete_daftar_utang.php?id=' + id)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Tampilkan SweetAlert dengan pesan berhasil
+                        Swal.fire({
+                            title: 'Deleted!',
+                            text: data.message,
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            // Setelah pop-up ditutup, refresh halaman
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: data.message,
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'There was a problem connecting to the server.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                });
+        }
+    });
+}
+
+
 // Script pratinjau gambar
 function previewImage(event) {
     const input = event.target;
@@ -87,7 +136,7 @@ function previewImage(event) {
     }
 }
 // Script untuk menonaktifkan debit atau kredit
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const debitInput = document.getElementById('debit');
     const kreditInput = document.getElementById('kredit');
 
@@ -111,4 +160,50 @@ document.addEventListener('DOMContentLoaded', function() {
     toggleInputs();
 });
 
-
+// Script konfirmasi penghapusan untuk daftar_Piutang
+function confirmDeleteDaftarPiutang(id) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Mengirim request AJAX ke delete_daftar_piutang.php
+            fetch('delete_daftar_piutang.php?id=' + id)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Tampilkan SweetAlert dengan pesan berhasil
+                        Swal.fire({
+                            title: 'Deleted!',
+                            text: data.message,
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            // Setelah pop-up ditutup, refresh halaman
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: data.message,
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'There was a problem connecting to the server.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                });
+        }
+    });
+}

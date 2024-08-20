@@ -1,14 +1,14 @@
 <?php
 // Detail koneksi database
-$servername = "localhost";
-$username = "u832397905_kmkdipa";
-$password = "KMKundipamks.25";
-$dbname = "u832397905_kmkdipa";
-
 // $servername = "localhost";
-// $username = "root";
-// $password = "";
-// $dbname = "sisfo_kmk_undipa";
+// $username = "u832397905_kmkdipa";
+// $password = "KMKundipamks.25";
+// $dbname = "u832397905_kmkdipa";
+
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "sisfo_kmk_undipa";
 
 // Membuat koneksi
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -16,21 +16,21 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 //Query tampil data
 function tampil_data($query)
 {
-  global $conn;
+    global $conn;
 
-  $result = mysqli_query($conn, $query);
-  $rows = [];
+    $result = mysqli_query($conn, $query);
+    $rows = [];
 
-  while ($row = mysqli_fetch_assoc($result)) {
-    $rows[] = $row;
-  }
+    while ($row = mysqli_fetch_assoc($result)) {
+        $rows[] = $row;
+    }
 
-  return $rows;
+    return $rows;
 }
 
 // Memeriksa koneksi
 if ($conn->connect_error) {
-  die("Koneksi gagal: " . $conn->connect_error);
+    die("Koneksi gagal: " . $conn->connect_error);
 }
 
 //Tambah Surat Masuk
@@ -372,19 +372,29 @@ function tambahLaporan($tanggal, $keterangan, $debit, $kredit, $ref)
 }
 
 // Edit Laporan Keuangan
-function editLaporan($conn, $id) {
+function editLaporan($conn, $id)
+{
     // Ambil data dari form
     $tanggal = $_POST['tanggal'];
     $keterangan = $_POST['keterangan'];
     $debit = isset($_POST['debit']) && $_POST['debit'] !== '' ? $_POST['debit'] : 0;
     $kredit = isset($_POST['kredit']) && $_POST['kredit'] !== '' ? $_POST['kredit'] : 0;
 
+    // Direktori target untuk menyimpan file
+    $target_dir = "referensi/";
+
     // Cek apakah file baru diunggah
     if ($_FILES['ref']['error'] === UPLOAD_ERR_OK) {
-        // Proses file baru
-        $ref = $_FILES['ref']['name'];
-        $target_dir = "referensi/";
-        $target_file = $target_dir . basename($ref);
+        // Ambil nama file asli
+        $original_filename = $_FILES['ref']['name'];
+        
+        // Tambahkan direktori target ke nama file untuk disimpan di database
+        $ref = $target_dir . basename($original_filename);
+
+        // Tentukan path lengkap untuk menyimpan file
+        $target_file = $target_dir . basename($original_filename);
+
+        // Pindahkan file yang diunggah ke direktori tujuan
         move_uploaded_file($_FILES['ref']['tmp_name'], $target_file);
 
         // Hapus file lama jika ada
@@ -392,8 +402,8 @@ function editLaporan($conn, $id) {
         $result = mysqli_query($conn, $old_ref_query);
         $old_ref = mysqli_fetch_assoc($result)['ref'];
 
-        if ($old_ref && file_exists($target_dir . $old_ref)) {
-            unlink($target_dir . $old_ref);
+        if ($old_ref && file_exists($old_ref)) {
+            unlink($old_ref);
         }
 
         // Query untuk mengupdate data dengan file baru
@@ -434,7 +444,9 @@ function editLaporan($conn, $id) {
     }
 }
 
-function updateSaldo($conn) {
+
+function updateSaldo($conn)
+{
     // Ambil semua transaksi dan urutkan berdasarkan ID
     $query = "SELECT id, debit, kredit FROM laporan_keuangan ORDER BY id ASC";
     $result = $conn->query($query);
@@ -447,10 +459,129 @@ function updateSaldo($conn) {
     }
 }
 
+// Tambah daftar utang
+function tambahUtang($tanggal, $keterangan, $nama_debitur, $jumlah, $status)
+{
+    global $conn;
 
+    // Insert data ke dalam tabel utang
+    $query = "INSERT INTO daftar_utang (tanggal, keterangan, nama_debitur, jumlah, status) 
+              VALUES ('$tanggal', '$keterangan', '$nama_debitur', $jumlah, '$status')";
 
+    if (mysqli_query($conn, $query)) {
+        return ['status' => true, 'message' => 'Data utang berhasil ditambahkan.'];
+    } else {
+        return ['status' => false, 'message' => 'Gagal menambahkan data utang: ' . mysqli_error($conn)];
+    }
+}
 
+// Edit utang
+function editUtang($conn, $id)
+{
+    // Ambil data dari form
+    $tanggal = $_POST['tanggal'];
+    $keterangan = $_POST['keterangan'];
+    $nama_debitur = $_POST['nama_debitur'];
+    $jumlah = $_POST['jumlah'];
+    $status = $_POST['status'];
 
+    // Query untuk mengupdate data
+    $query = "UPDATE daftar_utang SET 
+                tanggal = '$tanggal', 
+                keterangan = '$keterangan', 
+                nama_debitur = '$nama_debitur', 
+                jumlah = $jumlah, 
+                status = '$status'
+              WHERE id = $id";
 
+    // Eksekusi query
+    if (mysqli_query($conn, $query)) {
+        // Tampilkan SweetAlert setelah berhasil
+        echo "<script>
+            Swal.fire({
+                title: 'Berhasil!',
+                text: 'Data utang berhasil diubah.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = 'dashboard_daftar_utang.php';
+                }
+            });
+        </script>";
+    } else {
+        // Tampilkan SweetAlert jika gagal
+        echo "<script>
+            Swal.fire({
+                title: 'Gagal!',
+                text: 'Gagal mengubah data utang: " . mysqli_error($conn) . "',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        </script>";
+    }
+}
 
+// Tambah daftar piutang
+function tambahPiutang($tanggal, $keterangan, $nama_kreditur, $jumlah, $status)
+{
+    global $conn;
+
+    // Insert data ke dalam tabel utang
+    $query = "INSERT INTO daftar_piutang (tanggal, keterangan, nama_kreditur, jumlah, status) 
+              VALUES ('$tanggal', '$keterangan', '$nama_kreditur', $jumlah, '$status')";
+
+    if (mysqli_query($conn, $query)) {
+        return ['status' => true, 'message' => 'Data Piutang berhasil ditambahkan.'];
+    } else {
+        return ['status' => false, 'message' => 'Gagal menambahkan data Piutang: ' . mysqli_error($conn)];
+    }
+}
+
+// Edit Piutang
+function editPiutang($conn, $id)
+{
+    // Ambil data dari form
+    $tanggal = $_POST['tanggal'];
+    $keterangan = $_POST['keterangan'];
+    $nama_kreditur = $_POST['nama_kreditur'];
+    $jumlah = $_POST['jumlah'];
+    $status = $_POST['status'];
+
+    // Query untuk mengupdate data
+    $query = "UPDATE daftar_piutang SET 
+                tanggal = '$tanggal', 
+                keterangan = '$keterangan', 
+                nama_kreditur = '$nama_kreditur', 
+                jumlah = $jumlah, 
+                status = '$status'
+              WHERE id = $id";
+
+    // Eksekusi query
+    if (mysqli_query($conn, $query)) {
+        // Tampilkan SweetAlert setelah berhasil
+        echo "<script>
+            Swal.fire({
+                title: 'Berhasil!',
+                text: 'Data utang berhasil diubah.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = 'dashboard_daftar_piutang.php';
+                }
+            });
+        </script>";
+    } else {
+        // Tampilkan SweetAlert jika gagal
+        echo "<script>
+            Swal.fire({
+                title: 'Gagal!',
+                text: 'Gagal mengubah data utang: " . mysqli_error($conn) . "',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        </script>";
+    }
+}
 
