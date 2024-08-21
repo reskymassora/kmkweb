@@ -20,7 +20,7 @@
 		<div class="sidepanel-inner d-flex flex-column">
 			<a href="#" id="sidepanel-close" class="sidepanel-close d-xl-none">&times;</a>
 			<div class="app-branding">
-				<a class="app-logo" href="dashboard_bendahara_umum.php"><img src="../assets/images/logo_kmk_nonbg.png" alt="logo" width="40" height="40"><span class="logo-text ms-2">KMK UNDIPA</span></a>
+				<a class="app-logo" href="dashboard_bendahara_umum.php"><img src="../assets/images/logo_kmk_nonbg.png" alt="logo" width="40" height="40"><span class="logo-text ms-2">Bendahara Umum</span></a>
 			</div><!--//app-branding-->
 
 			<nav id="app-nav-main" class="app-nav app-nav-main flex-grow-1">
@@ -63,40 +63,59 @@
 							<span class="nav-link-text">Daftar Piutang</span>
 						</a><!--//nav-link-->
 					</li><!--//nav-item-->
+
+					<hr>
+
+					<li class="nav-item">
+						<a class="nav-link <?= $page == 4 ? 'active' : ''; ?>" href="account.php">
+							<span class="nav-icon">
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+									<path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
+									<path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1" />
+								</svg>
+							</span>
+							<span class="nav-link-text">Account</span>
+						</a><!--//nav-link-->
+					</li><!--//nav-item-->
+
+					<li class="nav-item">
+						<!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
+						<button id="logoutLink" class="nav-link">
+							<span class="nav-icon">
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-power" viewBox="0 0 16 16">
+									<path d="M7.5 1v7h1V1z" />
+									<path d="M3 8.812a5 5 0 0 1 2.578-4.375l-.485-.874A6 6 0 1 0 11 3.616l-.501.865A5 5 0 1 1 3 8.812" />
+								</svg>
+							</span>
+							<span class="nav-link-text">Logout</span>
+						</button><!--//nav-link-->
+					</li><!--//nav-item-->
+
 				</ul><!--//app-menu-->
-			</nav><!--//app-nav-->
-			<div class="app-sidepanel-footer">
-				<nav class="app-nav app-nav-footer">
-					<ul class="app-menu footer-menu list-unstyled">
-						<li class="nav-item">
-							<!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
-							<a class="nav-link" href="settings.html">
-								<span class="nav-icon">
-									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
-										<path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
-										<path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1" />
-									</svg>
-								</span>
-								<span class="nav-link-text">Account</span>
-							</a><!--//nav-link-->
-						</li><!--//nav-item-->
-						<li class="nav-item">
-							<!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
-							<a class="nav-link" href="https://themes.3rdwavemedia.com/bootstrap-templates/admin-dashboard/portal-free-bootstrap-admin-dashboard-template-for-developers/">
-								<span class="nav-icon">
-									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-power" viewBox="0 0 16 16">
-										<path d="M7.5 1v7h1V1z" />
-										<path d="M3 8.812a5 5 0 0 1 2.578-4.375l-.485-.874A6 6 0 1 0 11 3.616l-.501.865A5 5 0 1 1 3 8.812" />
-									</svg>
-								</span>
-								<span class="nav-link-text">Logout</span>
-							</a><!--//nav-link-->
-						</li><!--//nav-item-->
-
-					</ul><!--//footer-menu-->
-				</nav>
-			</div><!--//app-sidepanel-footer-->
-
-		</div><!--//sidepanel-inner-->
+		</div><!--//app-sidepanel-footer-->
+	</div><!--//sidepanel-inner-->
 	</div><!--//app-sidepanel-->
 </header><!--//app-header-->
+
+<!-- Script logout -->
+<script>
+	document.getElementById('logoutLink').addEventListener('click', function (event) {
+    event.preventDefault(); // Mencegah tindakan default dari anchor
+
+    Swal.fire({
+        title: 'Logout',
+        text: "Yakin ingin keluar dari sesi ini?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ya',
+        cancelButtonText: 'Tidak'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Arahkan ke halaman logout untuk menghancurkan session
+            window.location.href = '../logout.php';
+        }
+    });
+});
+</script>

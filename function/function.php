@@ -28,6 +28,14 @@ function tampil_data($query)
     return $rows;
 }
 
+function tampil_data_user($id){
+    global $conn;
+
+    $result = mysqli_query($conn,"SELECT * FROM pengurus WHERE nim = '$id'");
+    $row = mysqli_fetch_assoc($result);
+    return $row;
+}
+
 // Memeriksa koneksi
 if ($conn->connect_error) {
     die("Koneksi gagal: " . $conn->connect_error);

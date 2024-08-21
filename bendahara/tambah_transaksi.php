@@ -1,9 +1,30 @@
 <?php
-  require('../function/function.php');
+// Cek session terlebih dahulu
+session_start();
+if (!isset($_SESSION['nim'])) {
+  header('Location: ../login.php');
+  exit();
+}
+// Set waktu expired dalam detik (misalnya 30 menit)
+$session_timeout = 30 * 60; // 30 menit = 30 * 60 detik
+
+// Cek apakah session sudah expired
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $session_timeout)) {
+  session_unset(); // Hapus semua data session
+  session_destroy(); // Hapus session
+  header('Location: ../login.php'); // Redirect ke halaman login
+  exit();
+}
+$_SESSION['last_activity'] = time(); // Perbarui waktu aktivitas terakhir
+// Ambil info user yang login
+$nim = $_SESSION['nim'];
+
+require('../function/function.php');
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <title>Dashboard Bendahara Umum</title>
   <!-- Meta -->
@@ -17,27 +38,28 @@
   <script defer src="../assets/plugins/fontawesome/js/all.min.js"></script>
   <!-- App CSS -->
   <link id="theme-style" rel="stylesheet" href="../assets/css/portal.css">
-  	<!-- Sweatalert -->
-	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Sweatalert -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
+
 <body class="app">
   <!-- Logic -->
   <?php
   // Memeriksa apakah form telah disubmit
   if (isset($_POST['tambah_transaksi'])) {
-      // Mengambil data dari form
-      $tanggal = $_POST['tanggal'];
-      $keterangan = $_POST['keterangan'];
-      $debit = isset($_POST['debit']) ? $_POST['debit'] : '';
-      $kredit = isset($_POST['kredit']) ? $_POST['kredit'] : '';
-      $ref = $_FILES['ref'];
+    // Mengambil data dari form
+    $tanggal = $_POST['tanggal'];
+    $keterangan = $_POST['keterangan'];
+    $debit = isset($_POST['debit']) ? $_POST['debit'] : '';
+    $kredit = isset($_POST['kredit']) ? $_POST['kredit'] : '';
+    $ref = $_FILES['ref'];
 
-      // Memanggil fungsi untuk menambahkan data ke database
-      $result = tambahLaporan($tanggal, $keterangan, $debit, $kredit, $ref);
+    // Memanggil fungsi untuk menambahkan data ke database
+    $result = tambahLaporan($tanggal, $keterangan, $debit, $kredit, $ref);
 
-      // Menggunakan SweetAlert untuk memberikan umpan balik kepada pengguna
-      if ($result['status']) {
-          echo "<script>
+    // Menggunakan SweetAlert untuk memberikan umpan balik kepada pengguna
+    if ($result['status']) {
+      echo "<script>
               Swal.fire({
                   title: 'Berhasil!',
                   text: '{$result['message']}',
@@ -49,8 +71,8 @@
                   }
               });
           </script>";
-      } else {
-          echo "<script>
+    } else {
+      echo "<script>
               Swal.fire({
                   title: 'Gagal!',
                   text: '{$result['message']}',
@@ -62,14 +84,14 @@
                   }
               });
           </script>";
-      }
+    }
   }
   ?>
 
 
   <!-- Sidebar -->
   <?php
-    require 'navigation/header.php';
+  require 'navigation/header.php';
   ?>
   <div class="app-wrapper">
     <div class="app-content pt-3 p-md-3 p-lg-4">
@@ -108,7 +130,7 @@
                     <label>Debit</label>
                   </td>
                   <td>
-                    <input type="number" class="form-control" name="debit" id="debit"  />
+                    <input type="number" class="form-control" name="debit" id="debit" />
                   </td>
                 </tr>
                 <tr>
@@ -116,7 +138,7 @@
                     <label>Kredit</label>
                   </td>
                   <td>
-                    <input type="number" class="form-control" name="kredit" id="kredit"  />
+                    <input type="number" class="form-control" name="kredit" id="kredit" />
                   </td>
                 </tr>
                 <!-- Tambah Jarak -->

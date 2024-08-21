@@ -11,7 +11,7 @@
 
 	<meta name="description" content="Portal - Bootstrap 5 Admin Dashboard Template For Developers">
 	<meta name="author" content="Xiaoying Riley at 3rd Wave Media">
-	<link rel="shortcut icon" href="favicon.ico">
+	<link rel="shortcut icon" href="assets//images/logo_kmk_nonbg.png">
 
 	<!-- Sweatalert -->
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -26,18 +26,18 @@
 
 <body class="app app-login p-0">
 
-<?php
-session_start();
-require 'function/function.php';
+	<?php
+	session_start();
+	require 'function/function.php';
 
-if (isset($_POST['submit'])) {
-    $loginNIM = $_POST['nim'];
-    $loginJABATAN = $_POST['jabatan'];
-    $loginPASSWORD = $_POST['password'];
+	if (isset($_POST['submit'])) {
+		$loginNIM = $_POST['nim'];
+		$loginJABATAN = $_POST['jabatan'];
+		$loginPASSWORD = $_POST['password'];
 
-    // Periksa apakah NIM, Jabatan, dan Password diisi
-    if (empty($loginNIM) || empty($loginJABATAN) || empty($loginPASSWORD)) {
-        echo "<script>
+		// Periksa apakah NIM, Jabatan, dan Password diisi
+		if (empty($loginNIM) || empty($loginJABATAN) || empty($loginPASSWORD)) {
+			echo "<script>
                 Swal.fire({
                     title: 'Login Gagal!',
                     text: 'Semua field harus diisi.',
@@ -47,21 +47,21 @@ if (isset($_POST['submit'])) {
                     window.location.href = 'login.php';
                 });
             </script>";
-        exit;
-    }
+			exit;
+		}
 
-    $query = "SELECT * FROM pengurus WHERE 
+		$query = "SELECT * FROM pengurus WHERE 
                         nim = '$loginNIM' AND
                         password = '$loginPASSWORD' AND
                         jabatan = '$loginJABATAN'";
 
-    $result = mysqli_query($conn, $query);
+		$result = mysqli_query($conn, $query);
 
-    if (mysqli_num_rows($result) > 0) {
-        $_SESSION['nim'] = $loginNIM;
-        $_SESSION['jabatan'] = $loginJABATAN;
+		if (mysqli_num_rows($result) > 0) {
+			$_SESSION['nim'] = $loginNIM;
+			$_SESSION['jabatan'] = $loginJABATAN;
 
-        echo "<script>
+			echo "<script>
                 Swal.fire({
                     title: 'Login Berhasil!',
                     text: 'Klik OK untuk melanjutkan ke dashboard.',
@@ -69,20 +69,20 @@ if (isset($_POST['submit'])) {
                     confirmButtonText: 'OK'
                 }).then(function() {
                     window.location.href = '";
-        if ($loginJABATAN == 'Ketua Umum') {
-            echo "ketum/dashboard_ketua_umum.php";
-        } else if ($loginJABATAN == 'Bendahara Umum') {
-            echo "bendahara/dashboard_bendahara_umum.php";
-        } else if ($loginJABATAN == 'Sekretaris Umum') {
-            echo "sekretaris/dashboard_sekretaris_umum.php";
-        } else {
-            echo "dashboard_lain.php"; // Ganti sesuai kebutuhan
-        }
-        echo "';
+			if ($loginJABATAN == 'Ketua Umum') {
+				echo "ketum/dashboard_ketua_umum.php";
+			} else if ($loginJABATAN == 'Bendahara Umum') {
+				echo "bendahara/dashboard_bendahara_umum.php";
+			} else if ($loginJABATAN == 'Sekretaris Umum') {
+				echo "sekretaris/dashboard_sekretaris_umum.php";
+			} else {
+				echo "dashboard_lain.php"; // Ganti sesuai kebutuhan
+			}
+			echo "';
                 });
             </script>";
-    } else {
-        echo "<script>
+		} else {
+			echo "<script>
                 Swal.fire({
                     title: 'Login Gagal!',
                     text: 'NIM, Password, atau Jabatan salah.',
@@ -90,13 +90,9 @@ if (isset($_POST['submit'])) {
                     confirmButtonText: 'Coba Lagi'
                 });
             </script>";
-    }
-}
-?>
-
-
-
-
+		}
+	}
+	?>
 
 	<div class="row g-0 app-auth-wrapper">
 		<div class="col-12 col-md-7 col-lg-6 auth-main-col text-center p-5">
@@ -141,7 +137,7 @@ if (isset($_POST['submit'])) {
 								<button type="submit" name="submit" class="btn app-btn-primary w-100 theme-btn mx-auto">Log In</button>
 							</div>
 						</form>
-						<div class="auth-option text-center pt-3">No Account? Sign up <a class="text-link" href="signup.html">here</a>.</div>
+						<div class="auth-option text-center pt-3">Belum punya akun ? <a class="text-link"  href="https://wa.me/6285399320331?text=Syalom%20admin%2C%20saya%20ingin%20membuat%20akun%20KMK" target="_blank">Klik disini</a>.</div>
 					</div><!--//auth-form-container-->
 				</div><!--//auth-body-->
 			</div><!--//flex-column-->
@@ -158,5 +154,7 @@ if (isset($_POST['submit'])) {
 		</div><!--//auth-background-col-->
 	</div><!--//row-->
 </body>
+
+<script src="assets/js/login.js"></script>
 
 </html>

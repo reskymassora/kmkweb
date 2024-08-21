@@ -1,9 +1,9 @@
 <?php
-
+$page = 4;
 // Cek session terlebih dahulu
 session_start();
 if (!isset($_SESSION['nim'])) {
-  header('Location: ../login.php');
+  header('Location: login.php');
   exit();
 }
 // Set waktu expired dalam detik (misalnya 30 menit)
@@ -19,8 +19,11 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 
 $_SESSION['last_activity'] = time(); // Perbarui waktu aktivitas terakhir
 // Ambil info user yang login
 $nim = $_SESSION['nim'];
-
+// Query tampil data
 require('../function/function.php');
+$daftarLaporan = tampil_data("SELECT * FROM laporan_keuangan");
+//Mengambil info user
+$infoUser = tampil_data_user($nim);
 ?>
 
 <!DOCTYPE html>
@@ -28,10 +31,12 @@ require('../function/function.php');
 
 <head>
   <title>Dashboard Bendahara Umum</title>
+
   <!-- Meta -->
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <meta name="description" content="Portal - Bootstrap 5 Admin Dashboard Template For Developers">
   <meta name="author" content="Xiaoying Riley at 3rd Wave Media">
   <link rel="shortcut icon" href="../assets/images/logo_kmk_nonbg.png">
@@ -41,61 +46,15 @@ require('../function/function.php');
   <link id="theme-style" rel="stylesheet" href="../assets/css/portal.css">
   <!-- Sweatalert -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 
 <body class="app">
-  <!-- Logic -->
-  <?php
 
-  // Cek apakah tombol 'edit_transaksi' ditekan
-  if (isset($_POST['edit_transaksi'])) {
-    // Ambil ID dari URL atau parameter lainnya
-    $id = $_GET['id'];
-
-    // Panggil fungsi editLaporan
-    editLaporan($conn, $id);
-  }
-
-  // Edit Laporan Keuangan
-  $id = isset($_GET['id']) ? intval($_GET['id']) : 0; // Mengamankan id dan memastikan id adalah integer
-
-  if ($id > 0) {
-    $query = "SELECT * FROM laporan_keuangan WHERE id = ?";
-
-    if ($stmt = $conn->prepare($query)) {
-      $stmt->bind_param("i", $id);
-      $stmt->execute();
-      $result = $stmt->get_result();
-
-      // Mengambil data
-      if ($data = $result->fetch_assoc()) {
-        $tanggal = $data['tanggal'];
-        $keterangan = $data['keterangan'];
-        $ref = $data['ref']; // Nama file yang sudah diupload
-        $debit = $data['debit'];
-        $kredit = $data['kredit'];
-      } else {
-        echo "Data tidak ditemukan";
-        exit;
-      }
-
-      $stmt->close();
-    } else {
-      echo "Query gagal";
-      exit;
-    }
-  } else {
-    echo "ID tidak valid";
-    exit;
-  }
-  $conn->close();
-  ?>
-
-
-  <!-- Sidebar -->
   <?php
   require 'navigation/header.php';
   ?>
+
   <div class="app-wrapper">
     <div class="app-content pt-3 p-md-3 p-lg-4">
       <div class="container-xl">
@@ -103,59 +62,33 @@ require('../function/function.php');
           <div class="table-responsive">
             <table cellpadding="10">
               <!-- Form input -->
-              <form class="app-search-form" method="post" enctype="multipart/form-data">
+              <form class="app-search-form" method="post">
+                <tr>
+                  <td><h5>Informasi Akun</h5></td>
+                  <td></td>
+                </tr>
                 <tr>
                   <td>
-                    <label>Tanggal</label>
+                    <label>Nama Lengkap</label>
                   </td>
                   <td>
-                    <input type="date" class="form-control" name="tanggal" step="0.01" min="0" value="<?php echo $tanggal; ?>" />
+                    <input type="text" class="form-control" step="0.01" min="0" value="<?= $infoUser['nama']; ?>" disabled />
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <label>Keterangan</label>
+                    <label>NIM</label>
                   </td>
                   <td>
-                    <input type="text" class="form-control" name="keterangan" require value="<?php echo $keterangan; ?>" />
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <label>Ref (Bukti)</label>
-                  </td>
-                  <td>
-                    <img id="refPreview" class="p-2" src="<?php echo $ref; ?>" alt="Current Image" width="100px">
-                    <input type="file" class="form-control" name="ref" id="refInput" onchange="previewImage(event)" />
+                    <input type="text" class="form-control" step="0.01" min="0" value="<?= $infoUser['nim']; ?>" disabled />
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <label>Debit</label>
+                    <label>Jabatan</label>
                   </td>
                   <td>
-                    <input type="number" class="form-control" id="debit" name="debit" id="debit" value="<?php echo $debit; ?>" required />
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <label>Kredit</label>
-                  </td>
-                  <td>
-                    <input type="number" class="form-control" id="kredit" name="kredit" id="kredit" value="<?php echo $kredit; ?>" required />
-                  </td>
-                </tr>
-                <!-- Tambah Jarak -->
-                <tr>
-                  <td>
-                  </td>
-                  <td>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <button name="edit_transaksi" type="submit" class="btn app-btn-primary w-100 theme-btn mx-auto">Edit Data</button>
+                    <input type="text" class="form-control" step="0.01" min="0" value="<?= $infoUser['jabatan']; ?>" disabled />
                   </td>
                 </tr>
               </form>
@@ -175,9 +108,9 @@ require('../function/function.php');
 
     <!-- Page Specific JS -->
     <script src="../assets/js/app.js"></script>
-
-    <!-- script transaksi baru -->
+    <!-- script bendahara -->
     <script src="js/bendahara.js"></script>
+
 </body>
 
 </html>
