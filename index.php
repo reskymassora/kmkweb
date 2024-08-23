@@ -1,26 +1,3 @@
-
-<!-- <?php
-  // Cek session terlebih dahulu
-  session_start();
-  if (!isset($_SESSION['nim'])) {
-    header('Location: login.php');
-    exit();
-  }
-  // Set waktu expired dalam detik (misalnya 30 menit)
-  $session_timeout = 30 * 60; // 30 menit = 30 * 60 detik
-
-  // Cek apakah session sudah expired
-  if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $session_timeout)) {
-    session_unset(); // Hapus semua data session
-    session_destroy(); // Hapus session
-    header('Location: ../login.php'); // Redirect ke halaman login
-    exit();
-  }
-  $_SESSION['last_activity'] = time(); // Perbarui waktu aktivitas terakhir
-  // Ambil info user yang login
-  $nim = $_SESSION['nim'];
-?> -->
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -36,7 +13,7 @@
   <title>KMK Universitas Dipa</title>
 
   <!-- Bootstrap core CSS -->
-  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="index/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
 
   <!-- Additional CSS Files -->
